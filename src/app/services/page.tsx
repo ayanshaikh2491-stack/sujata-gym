@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
 
 interface Service {
@@ -11,149 +12,19 @@ interface Service {
 }
 
 const services: Service[] = [
-  {
-    title: "Personal Training",
-    description: "One-on-one sessions with certified trainers tailored to your specific goals and fitness level.",
-    icon: "👨‍🏫",
-    features: ["Custom workout plans", "Nutrition guidance", "Progress tracking", "Flexible scheduling"]
-  },
-  {
-    title: "Group Classes",
-    description: "High-energy group sessions including yoga, HIIT, strength training, and dance fitness.",
-    icon: "👥",
-    features: ["Variety of class types", "Motivational atmosphere", "Social interaction", "All skill levels welcome"]
-  },
-  {
-    title: "Strength Training",
-    description: "Build muscle and increase strength with our comprehensive weight training programs.",
-    icon: "💪",
-    features: ["Free weights & machines", "Olympic lifting platform", "Progressive overload", "Form correction"]
-  },
-  {
-    title: "Cardio Fitness",
-    description: "Improve cardiovascular health with state-of-the-art cardio equipment and programs.",
-    icon: "❤️",
-    features: ["Treadmills & ellipticals", "Heart rate monitoring", "Variety of programs", "Recovery tracking"]
-  },
-  {
-    title: "Nutrition Counseling",
-    description: "Expert guidance on nutrition to fuel your body and optimize your training results.",
-    icon: "🥗",
-    features: ["Meal planning", "Supplement advice", "Body composition analysis", "Lifestyle coaching"]
-  },
-  {
-    title: "Recovery & Wellness",
-    description: "Speed up recovery and prevent injury with our wellness and recovery services.",
-    icon: "🧘",
-    features: ["Massage therapy", "Stretching programs", "Injury prevention", "Stress management"]
-  }
+  { title: "Personal Training", description: "One-on-one sessions with certified trainers tailored to your goals.", icon: "👨‍🏫", features: ["Custom workout plans", "Nutrition guidance", "Progress tracking"] },
+  { title: "Group Classes", description: "High-energy group sessions including yoga, HIIT, and strength training.", icon: "👥", features: ["Variety of class types", "Motivational atmosphere", "All skill levels"] },
+  { title: "Strength Training", description: "Build muscle and increase strength with comprehensive weight programs.", icon: "💪", features: ["Free weights & machines", "Olympic lifting", "Form correction"] },
+  { title: "Cardio Fitness", description: "Improve cardiovascular health with state-of-the-art cardio equipment.", icon: "❤️", features: ["Treadmills & ellipticals", "Heart rate monitoring", "Various programs"] },
+  { title: "Nutrition Counseling", description: "Expert guidance on nutrition to optimize your training results.", icon: "🥗", features: ["Meal planning", "Supplement advice", "Body analysis"] },
+  { title: "Recovery & Wellness", description: "Speed up recovery and prevent injury with wellness services.", icon: "🧘", features: ["Massage therapy", "Stretching programs", "Injury prevention"] }
 ]
 
-function ServiceCard({ service, index }: { service: Service; index: number }) {
-  const [isVisible, setIsVisible] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setIsVisible(true)
-        },
-        { threshold: 0.1 }
-      )
-      if (ref.current) observer.observe(ref.current)
-      return () => {
-        observer.disconnect()
-        clearTimeout(timer)
-      }
-    }, index * 100)
-  }, [index])
-
-  return (
-    <div 
-      ref={ref}
-      className={`group relative bg-[#12121a] rounded-2xl p-6 border border-gray-800 transition-all duration-300 hover:border-[#f7ff00] hover:shadow-[0_0_30px_rgba(247,255,0,0.2)] ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-      }`}
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-[#f7ff00]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
-      <div className="relative z-10">
-        <div className="text-4xl mb-4 transform transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">{service.icon}</div>
-        <h3 className="text-2xl font-bold text-white mb-3 transition-colors duration-300 group-hover:text-[#f7ff00]">{service.title}</h3>
-        <p className="text-gray-400 mb-6 leading-relaxed">{service.description}</p>
-
-        <ul className="space-y-2">
-          {service.features.map((feature, featureIndex) => (
-            <li key={featureIndex} className="flex items-center text-sm text-gray-500">
-              <span className="text-[#f7ff00] mr-2">✓</span>
-              {feature}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  )
-}
-
-function PricingCard({ plan, price, features, popular = false, index }: { plan: string; price: number; features: string[]; popular?: boolean; index: number }) {
-  const [isVisible, setIsVisible] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setIsVisible(true)
-        },
-        { threshold: 0.2 }
-      )
-      if (ref.current) observer.observe(ref.current)
-      return () => {
-        observer.disconnect()
-        clearTimeout(timer)
-      }
-    }, index * 150)
-  }, [index])
-
-  return (
-    <div 
-      ref={ref}
-      className={`group relative rounded-2xl p-8 text-center transition-all duration-500 hover:scale-105 hover:shadow-[0_0_30px_rgba(247,255,0,0.3)] ${
-        popular 
-          ? 'bg-gradient-to-br from-[#f7ff00] to-[#00f7ff] border-2 border-[#f7ff00] relative shadow-[0_0_40px_rgba(247,255,0,0.3)]' 
-          : 'bg-[#12121a] border border-gray-800 hover:border-[#f7ff00]'
-      } ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-    >
-      {popular && (
-        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-black text-[#f7ff00] px-4 py-1 rounded-full text-sm font-bold shadow-lg">
-          Most Popular
-        </div>
-      )}
-      <h3 className={`text-2xl font-bold mb-4 ${popular ? 'text-black' : 'text-white'}`}>{plan}</h3>
-      <div className={`text-4xl font-bold mb-6 ${popular ? 'text-black' : 'text-[#f7ff00]'}`}>
-        ${price}<span className="text-lg font-normal text-gray-400">/month</span>
-      </div>
-      <ul className={`space-y-2 mb-8 ${popular ? 'text-black' : 'text-gray-400'}`}>
-        {features.map((feature, i) => (
-          <li key={i} className="flex items-center justify-center">
-            <span className={popular ? 'text-black mr-2' : 'text-[#f7ff00] mr-2'}>✓</span>
-            {feature}
-          </li>
-        ))}
-      </ul>
-      <Link 
-        href="/contact"
-        className={`inline-block w-full font-bold py-3 px-6 rounded-full transition-all duration-300 hover:scale-105 ${
-          popular 
-            ? 'bg-black text-[#f7ff00] hover:bg-gray-900' 
-            : 'bg-[#f7ff00] text-black hover:bg-white'
-        }`}
-      >
-        Choose {plan}
-      </Link>
-    </div>
-  )
-}
+const plans = [
+  { name: "Basic", price: 29, features: ["24/7 Gym Access", "Basic Equipment", "Locker Room", "Free Parking"], popular: false },
+  { name: "Premium", price: 49, features: ["Everything in Basic", "Group Classes", "Personal Training (2x)", "Nutrition Consultation"], popular: true },
+  { name: "Elite", price: 89, features: ["Everything in Premium", "Unlimited Training", "Massage Therapy", "VIP Lounge"], popular: false }
+]
 
 export default function Services() {
   const [isLoaded, setIsLoaded] = useState(false)
@@ -163,79 +34,121 @@ export default function Services() {
   }, [])
 
   return (
-    <div className={`min-h-screen py-20 relative transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-      <div className="absolute inset-0 grid-bg pointer-events-none" />
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-40 right-0 w-[500px] h-[500px] rounded-full opacity-15 blur-[100px]" style={{ background: 'radial-gradient(circle, #00f7ff 0%, transparent 70%)' }} />
-        <div className="absolute bottom-40 left-0 w-[400px] h-[400px] rounded-full opacity-15 blur-[80px]" style={{ background: 'radial-gradient(circle, #ff6b00 0%, transparent 70%)' }} />
-      </div>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen py-20 relative"
+    >
+      <div className="absolute inset-0 grid-pattern" />
+      <div className="absolute top-40 right-0 w-[500px] h-[500px] rounded-full opacity-10 blur-[100px]" style={{ background: 'radial-gradient(circle, #6366f1 0%, transparent 70%)' }} />
+      <div className="absolute bottom-40 left-0 w-[400px] h-[400px] rounded-full opacity-10 blur-[80px]" style={{ background: 'radial-gradient(circle, #f59e0b 0%, transparent 70%)' }} />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <section className="text-center mb-16 md:mb-24" aria-labelledby="services-heading">
-          <h1 id="services-heading" className="text-5xl md:text-6xl font-bold text-white mb-6">
+      <div className="max-w-6xl mx-auto px-4 relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
             Our <span className="gradient-text">Services</span>
           </h1>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Comprehensive fitness solutions designed to help you achieve your goals,
-            backed by professional trainers and cutting-edge equipment.
+          <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+            Comprehensive fitness solutions designed to help you achieve your goals.
           </p>
-        </section>
+        </motion.div>
 
-        <section className="mb-16 md:mb-24" aria-labelledby="services-list-heading">
-          <h2 id="services-list-heading" className="sr-only">Our Services</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {services.map((service, index) => (
-              <ServiceCard key={index} service={service} index={index} />
-            ))}
-          </div>
-        </section>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+          {services.map((service, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="glow-card rounded-2xl p-6"
+            >
+              <div className="text-4xl mb-4">{service.icon}</div>
+              <h3 className="text-xl font-semibold text-white mb-3">{service.title}</h3>
+              <p className="text-slate-400 mb-4">{service.description}</p>
+              <ul className="space-y-2">
+                {service.features.map((feature, j) => (
+                  <li key={j} className="flex items-center text-slate-500 text-sm">
+                    <span className="text-amber-500 mr-2">✓</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
 
-        <section className="mb-16 md:mb-24" aria-labelledby="pricing-heading">
-          <h2 id="pricing-heading" className="text-4xl font-bold text-white text-center mb-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-4xl font-bold text-white mb-4">
             Membership <span className="gradient-text">Plans</span>
           </h2>
-          <p className="text-gray-400 text-center max-w-2xl mx-auto mb-12">
-            Choose the plan that fits your fitness goals and budget
-          </p>
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-            <PricingCard 
-              plan="Basic" 
-              price={29} 
-              features={["24/7 Gym Access", "Basic Equipment", "Locker Room", "Free Parking"]}
-              index={0}
-            />
-            <PricingCard 
-              plan="Premium" 
-              price={49} 
-              features={["Everything in Basic", "Group Classes", "Personal Training (2x/month)", "Nutrition Consultation", "Towel Service"]}
-              popular={true}
-              index={1}
-            />
-            <PricingCard 
-              plan="Elite" 
-              price={89} 
-              features={["Everything in Premium", "Unlimited Personal Training", "Massage Therapy", "VIP Lounge Access", "Guest Privileges"]}
-              index={2}
-            />
-          </div>
-        </section>
+          <p className="text-slate-400">Choose the plan that fits your fitness goals and budget</p>
+        </motion.div>
 
-        <section className="relative bg-[#12121a] rounded-2xl p-8 md:p-12 text-center border border-[#00f7ff]/30 overflow-hidden" aria-labelledby="cta-heading">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#00f7ff]/10 via-transparent to-[#f7ff00]/10" />
-          <div className="relative z-10">
-            <h2 id="cta-heading" className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Ready to Start Your Journey?
-            </h2>
-            <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
-              Join thousands of members who have transformed their lives at Sujata Gym.
-              Get your first workout free and experience the difference.
-            </p>
-            <Link href="/contact" className="inline-block bg-[#f7ff00] text-black font-bold py-4 px-10 rounded-full text-lg hover:bg-white transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(247,255,0,0.4)]">
-              Start Free Trial Today
-            </Link>
-          </div>
-        </section>
+        <div className="grid md:grid-cols-3 gap-6 mb-16">
+          {plans.map((plan, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className={`glow-card rounded-2xl p-8 text-center ${plan.popular ? 'border-amber-500' : ''}`}
+            >
+              {plan.popular && (
+                <div className="bg-amber-500 text-slate-900 text-sm font-bold px-4 py-1 rounded-full inline-block mb-4">
+                  Most Popular
+                </div>
+              )}
+              <h3 className="text-2xl font-bold text-white mb-4">{plan.name}</h3>
+              <div className="text-4xl font-bold text-amber-500 mb-6">
+                ${plan.price}<span className="text-lg text-slate-400">/month</span>
+              </div>
+              <ul className="space-y-2 mb-8">
+                {plan.features.map((feature, j) => (
+                  <li key={j} className="flex items-center justify-center text-slate-400">
+                    <span className="text-amber-500 mr-2">✓</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/contact" className={`btn-primary w-full py-3 rounded-lg block ${plan.popular ? '' : 'bg-slate-700 text-white hover:bg-slate-600'}`}>
+                Choose {plan.name}
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="glow-card rounded-2xl p-10 text-center border-indigo-500/30"
+        >
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Ready to Start Your Journey?
+          </h2>
+          <p className="text-slate-400 mb-8 max-w-xl mx-auto">
+            Join thousands of members who have transformed their lives at Sujata Gym.
+            Get your first workout free!
+          </p>
+          <Link href="/contact" className="btn-primary inline-block px-10 py-4 rounded-full text-lg">
+            Start Free Trial Today
+          </Link>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   )
 }
