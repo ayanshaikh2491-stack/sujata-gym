@@ -1,51 +1,40 @@
-'use client'
-
 import { useState } from 'react'
-
-// Dynamically import 3D components
-const Gym3DCanvas = dynamic(() => import('@/components/Gym3DScene'), { ssr: false })
 
 const galleryItems = [
   {
     id: 1,
     title: "Main Gym Floor",
     description: "State-of-the-art equipment and spacious workout areas",
-    image: "/api/placeholder/400/300",
     category: "Facilities"
   },
   {
     id: 2,
     title: "Strength Training Zone",
     description: "Olympic weightlifting platform and free weights",
-    image: "/api/placeholder/400/300",
     category: "Equipment"
   },
   {
     id: 3,
     title: "Cardio Area",
     description: "Latest cardio machines with entertainment systems",
-    image: "/api/placeholder/400/300",
     category: "Equipment"
   },
   {
     id: 4,
     title: "Group Fitness Studio",
     description: "Versatile space for yoga, pilates, and group classes",
-    image: "/api/placeholder/400/300",
     category: "Facilities"
   },
   {
     id: 5,
     title: "Recovery Lounge",
     description: "Relaxation area with massage chairs and recovery tools",
-    image: "/api/placeholder/400/300",
     category: "Amenities"
   },
   {
     id: 6,
     title: "Locker Rooms",
     description: "Modern locker rooms with premium amenities",
-    image: "/api/placeholder/400/300",
     category: "Amenities"
   }
 ]
@@ -54,7 +43,6 @@ const categories = ["All", "Facilities", "Equipment", "Amenities"]
 
 export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState("All")
-  const [show3D, setShow3D] = useState(true)
 
   const filteredItems = selectedCategory === "All"
     ? galleryItems
@@ -66,40 +54,23 @@ export default function Gallery() {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            3D <span className="text-yellow-400">Gallery</span>
+            Photo <span className="text-yellow-400">Gallery</span>
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Experience our gym like never before with immersive 3D visualization
-            and explore every corner of our state-of-the-art facility.
+            Explore our state-of-the-art facilities and equipment through our professional photo gallery.
           </p>
         </div>
 
-        {/* 3D Toggle */}
-        <div className="text-center mb-8">
-          <button
-            onClick={() => setShow3D(!show3D)}
-            className="bg-yellow-400 text-black font-bold py-3 px-6 rounded-full hover:bg-yellow-500 transition-colors"
-          >
-            {show3D ? '🎯 Show Photo Gallery' : '🎮 Show 3D Experience'}
-          </button>
-        </div>
-
-        {/* 3D Experience */}
-        {show3D && (
-          <div className="mb-16">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4">
-              <h2 className="text-2xl font-bold text-white mb-4 text-center">
-                🏋️‍♀️ Interactive 3D Gym Experience
-              </h2>
-              <div className="h-96 rounded-xl overflow-hidden">
-                <Gym3DCanvas />
-              </div>
-              <p className="text-gray-300 text-center mt-4">
-                Use mouse to rotate, zoom, and explore the gym in 3D!
-              </p>
+        {/* Coming Soon 3D Notice */}
+        <div className="bg-yellow-400/20 border border-yellow-400/30 rounded-2xl p-6 mb-12">
+          <div className="flex items-center justify-center">
+            <div className="text-2xl mr-4">🚧</div>
+            <div>
+              <h3 className="text-lg font-bold text-yellow-400">3D Experience Coming Soon!</h3>
+              <p className="text-gray-200">Interactive 3D gym tour will be available shortly.</p>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Filter Buttons */}
         <div className="flex flex-wrap justify-center gap-4 mb-12">
@@ -136,19 +107,18 @@ export default function Gallery() {
           ))}
         </div>
 
-        {/* Virtual Tour CTA */}
+        {/* Visit CTA */}
         <div className="mt-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready for a Virtual Tour?</h2>
+          <h2 className="text-3xl font-bold text-white mb-4">Ready to Experience It Yourself?</h2>
           <p className="text-gray-200 mb-6 max-w-2xl mx-auto">
-            Experience our gym through our immersive 3D environment. Walk through every area,
-            interact with equipment, and get a true feel for the space before visiting.
+            Visit our gym and see the facilities in person. Schedule a free tour and start your fitness journey today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="bg-white text-purple-600 font-bold py-3 px-6 rounded-full hover:bg-gray-100 transition-colors">
-              🎮 Start Virtual Tour
+              📅 Schedule Free Tour
             </button>
             <button className="bg-purple-500 text-white font-bold py-3 px-6 rounded-full hover:bg-purple-400 transition-colors">
-              📅 Schedule In-Person Visit
+              📞 Call Now
             </button>
           </div>
         </div>

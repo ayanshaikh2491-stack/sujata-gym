@@ -1,26 +1,10 @@
-import dynamic from 'next/dynamic'
 import Link from 'next/link'
-
-// Dynamically import the 3D component to avoid SSR issues
-const Gym3DCanvas = dynamic(() => import('@/components/Gym3DScene'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-screen bg-gradient-to-br from-blue-900 to-purple-900 flex items-center justify-center">
-      <div className="text-white text-xl">Loading 3D Gym Experience...</div>
-    </div>
-  )
-})
 
 export default function Home() {
   return (
-    <div className="relative">
-      {/* 3D Background */}
-      <div className="fixed inset-0 z-0">
-        <Gym3DCanvas />
-      </div>
-
-      {/* Overlay Content */}
-      <div className="relative z-10 min-h-screen flex items-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+      {/* Hero Section */}
+      <div className="relative min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="bg-black/40 backdrop-blur-md rounded-2xl p-8 md:p-12 max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
@@ -32,8 +16,8 @@ export default function Home() {
             </h1>
 
             <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
-              Transform your body, transform your life. Experience the future of fitness
-              with our immersive 3D gym environment and personalized training programs.
+              Transform your body, transform your life. Experience world-class fitness
+              with professional trainers, state-of-the-art equipment, and personalized training programs.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -48,7 +32,7 @@ export default function Home() {
                 href="/gallery"
                 className="bg-white/10 backdrop-blur-md text-white font-bold py-4 px-8 rounded-full text-lg border border-white/20 hover:bg-white/20 transition-all duration-300"
               >
-                🎯 Explore 3D Gallery
+                📸 View Gallery
               </Link>
             </div>
 
@@ -67,20 +51,43 @@ export default function Home() {
                 <div className="text-sm text-gray-300">Access</div>
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-lg p-4">
-                <div className="text-3xl font-bold text-yellow-400">3D</div>
-                <div className="text-sm text-gray-300">Experience</div>
+                <div className="text-3xl font-bold text-yellow-400">5+</div>
+                <div className="text-sm text-gray-300">Years Experience</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
-        <div className="animate-bounce">
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
+      {/* Features Section */}
+      <div className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-white text-center mb-12">Why Choose Sujata Gym?</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
+              <div className="text-4xl mb-4">🏆</div>
+              <h3 className="text-xl font-bold text-white mb-3">Expert Trainers</h3>
+              <p className="text-gray-300">
+                Certified professional trainers with years of experience to guide you through your fitness journey.
+              </p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
+              <div className="text-4xl mb-4">💪</div>
+              <h3 className="text-xl font-bold text-white mb-3">Modern Equipment</h3>
+              <p className="text-gray-300">
+                State-of-the-art fitness equipment and facilities to ensure the best workout experience.
+              </p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 text-center">
+              <div className="text-4xl mb-4">🤝</div>
+              <h3 className="text-xl font-bold text-white mb-3">Community</h3>
+              <p className="text-gray-300">
+                Join a supportive community of fitness enthusiasts who motivate each other to achieve goals.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
