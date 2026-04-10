@@ -1,9 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
-// Animated counter hook for stats
 function useAnimatedCounter(target: number, duration: number = 2000) {
   const [count, setCount] = useState(0)
 
@@ -27,119 +26,184 @@ function useAnimatedCounter(target: number, duration: number = 2000) {
   return count
 }
 
-function StatCard({ target, label, suffix = '' }: { target: number; label: string; suffix?: string }) {
+function StatCard({ target, label, suffix = '', delay }: { target: number; label: string; suffix?: string; delay: number }) {
   const count = useAnimatedCounter(target)
-  
+  const [isVisible, setIsVisible] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setIsVisible(true)
+        },
+        { threshold: 0.3 }
+      )
+      if (ref.current) observer.observe(ref.current)
+      return () => {
+        observer.disconnect()
+        clearTimeout(timer)
+      }
+    }, delay)
+  }, [delay])
+
   return (
-    <div className="bg-white/10 backdrop-blur-md rounded-lg p-4 text-center transition-all duration-300 hover:bg-white/15 hover:scale-105">
-      <div className="text-3xl md:text-4xl font-bold text-yellow-400">
-        {count}{suffix}
+    <div 
+      ref={ref}
+      className={`relative group bg-[#12121a] rounded-2xl p-6 border border-[#f7ff00]/20 overflow-hidden transition-all duration-700 hover:border-[#f7ff00] hover:shadow-[0_0_30px_rgba(247,255,0,0.3)] ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'
+      }`}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-[#f7ff00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="relative z-10">
+        <div className="text-4xl md:text-5xl font-black text-[#f7ff00] drop-shadow-lg">
+          {count}{suffix}
+        </div>
+        <div className="text-gray-400 text-sm md:text-base font-medium mt-2">{label}</div>
       </div>
-      <div className="text-sm text-gray-300 mt-1">{label}</div>
     </div>
   )
 }
 
-function FeatureCard({ icon, title, description }: { icon: string; title: string; description: string }) {
+function FeatureCard({ icon, title, description, delay }: { icon: string; title: string; description: string; delay: number }) {
   const [isVisible, setIsVisible] = useState(false)
-  const ref = typeof window !== 'undefined' ? { current: null } : { current: null }
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.2 }
-    )
-
-    const element = document.getElementById(`feature-${title.replace(/\s/g, '-')}`)
-    if (element) observer.observe(element)
-
-    return () => observer.disconnect()
-  }, [title])
+    const timer = setTimeout(() => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setIsVisible(true)
+        },
+        { threshold: 0.2 }
+      )
+      if (ref.current) observer.observe(ref.current)
+      return () => {
+        observer.disconnect()
+        clearTimeout(timer)
+      }
+    }, delay)
+  }, [delay])
 
   return (
     <div 
-      id={`feature-${title.replace(/\s/g, '-')}`}
-      className={`bg-white/10 backdrop-blur-md rounded-xl p-6 text-center transition-all duration-500 hover:bg-white/15 hover:scale-105 hover:shadow-xl ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      ref={ref}
+      className={`group relative bg-[#12121a] rounded-2xl p-8 border border-gray-800 transition-all duration-700 hover:border-[#f7ff00] hover:shadow-[0_0_40px_rgba(247,255,0,0.2)] ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'
       }`}
     >
-      <div className="text-4xl mb-4 transform transition-transform duration-300 hover:scale-110">
-        {icon}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#f7ff00]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+      <div className="relative z-10 text-center">
+        <div className="text-5xl mb-6 transform transition-transform duration-500 group-hover:scale-125 group-hover:rotate-6">
+          {icon}
+        </div>
+        <h3 className="text-2xl font-bold text-white mb-4 transition-colors duration-300 group-hover:text-[#f7ff00]">
+          {title}
+        </h3>
+        <p className="text-gray-400 leading-relaxed">
+          {description}
+        </p>
       </div>
-      <h3 className="text-xl font-bold text-white mb-3 transition-colors duration-300 hover:text-yellow-400">
-        {title}
-      </h3>
-      <p className="text-gray-300 leading-relaxed">
-        {description}
-      </p>
     </div>
   )
 }
 
 export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false)
+  const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 })
 
   useEffect(() => {
     setIsLoaded(true)
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth) * 100,
+        y: (e.clientY / window.innerHeight) * 100
+      })
+    }
+    
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [])
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-      {/* Hero Section */}
-      <div className="relative min-h-screen flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="bg-black/40 backdrop-blur-md rounded-2xl p-8 md:p-12 max-w-4xl mx-auto shadow-2xl">
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-              🏋️‍♀️
-              <br />
-              <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent animate-pulse">
-                Sujata Gym
+    <div className={`min-h-screen relative overflow-hidden transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      <div 
+        className="absolute inset-0 transition-all duration-75 ease-out"
+        style={{
+          background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, #1a1a2e 0%, #0a0a0f 25%, #0a0a0f 50%, #1a1a2e 75%, #0a0a0f 100%)`
+        }}
+      />
+      
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div 
+          className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full opacity-30 blur-[120px]"
+          style={{ background: 'radial-gradient(circle, #f7ff00 0%, transparent 70%)', animation: 'float 8s ease-in-out infinite' }}
+        />
+        <div 
+          className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full opacity-25 blur-[100px]"
+          style={{ background: 'radial-gradient(circle, #00f7ff 0%, transparent 70%)', animation: 'float 10s ease-in-out infinite 1s' }}
+        />
+        <div 
+          className="absolute top-1/2 left-1/2 w-[400px] h-[400px] rounded-full opacity-20 blur-[80px]"
+          style={{ background: 'radial-gradient(circle, #ff6b00 0%, transparent 70%)', animation: 'float 12s ease-in-out infinite 2s' }}
+        />
+      </div>
+
+      <div className="absolute inset-0 grid-bg" />
+
+      <div className="relative min-h-screen flex items-center justify-center px-4 py-20">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="text-7xl md:text-9xl mb-6 animate-bounce" style={{ animationDuration: '3s' }}>
+            🏋️‍♂️
+          </div>
+
+          <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tight">
+            <span className="gradient-text">
+              SUJATA GYM
+            </span>
+          </h1>
+
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
+            Transform your body, transform your life. Experience world-class fitness with 
+            <span className="text-[#f7ff00] font-semibold"> professional trainers</span>, 
+            state-of-the-art equipment, and personalized training programs.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
+            <Link
+              href="/services"
+              className="group relative px-12 py-5 bg-[#f7ff00] text-black font-bold text-lg rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(247,255,0,0.5)]"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                ⚡ Start Your Journey
               </span>
-            </h1>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#f7ff00] via-white to-[#f7ff00] opacity-0 group-hover:opacity-100 transition-opacity" />
+            </Link>
 
-            <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Transform your body, transform your life. Experience world-class fitness
-              with professional trainers, state-of-the-art equipment, and personalized training programs.
-            </p>
+            <Link
+              href="/gallery"
+              className="group px-12 py-5 bg-transparent text-[#f7ff00] font-bold text-lg rounded-full border-2 border-[#f7ff00] hover:bg-[#f7ff00]/10 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(247,255,0,0.3)]"
+            >
+              📸 View Gallery
+            </Link>
+          </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Link
-                href="/services"
-                className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold py-4 px-8 rounded-full text-lg hover:from-yellow-500 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg"
-              >
-                🚀 Start Your Journey
-              </Link>
-
-              <Link
-                href="/gallery"
-                className="bg-white/10 backdrop-blur-md text-white font-bold py-4 px-8 rounded-full text-lg border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300"
-              >
-                📸 View Gallery
-              </Link>
-            </div>
-
-            {/* Stats with animated counters */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-12">
-              <StatCard target={500} label="Happy Members" suffix="+" />
-              <StatCard target={50} label="Equipment Types" suffix="+" />
-              <StatCard target={24} label="Access" suffix="/7" />
-              <StatCard target={5} label="Years Experience" suffix="+" />
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto">
+            <StatCard target={500} label="Happy Members" suffix="+" delay={0} />
+            <StatCard target={50} label="Equipment Types" suffix="+" delay={100} />
+            <StatCard target={24} label="Access Hours" suffix="/7" delay={200} />
+            <StatCard target={5} label="Years Experience" suffix="+" delay={300} />
           </div>
         </div>
       </div>
 
-      {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" aria-labelledby="features-heading">
+      <section className="relative py-24 px-4" aria-labelledby="features-heading">
         <div className="max-w-7xl mx-auto">
-          <h2 id="features-heading" className="text-4xl font-bold text-white text-center mb-4">
-            Why Choose <span className="text-yellow-400">Sujata Gym</span>?
+          <h2 id="features-heading" className="text-4xl md:text-5xl font-bold text-white text-center mb-4">
+            Why Choose <span className="gradient-text">Sujata Gym</span>?
           </h2>
-          <p className="text-gray-300 text-center max-w-2xl mx-auto mb-12">
+          <p className="text-gray-400 text-center max-w-2xl mx-auto mb-16 text-lg">
             Join thousands of satisfied members who have transformed their lives with us
           </p>
           
@@ -148,37 +212,42 @@ export default function Home() {
               icon="🏆" 
               title="Expert Trainers" 
               description="Certified professional trainers with years of experience to guide you through your fitness journey with personalized attention."
+              delay={0}
             />
             <FeatureCard 
               icon="💪" 
               title="Modern Equipment" 
               description="State-of-the-art fitness equipment and facilities to ensure the best workout experience with latest technology."
+              delay={150}
             />
             <FeatureCard 
               icon="🤝" 
               title="Community" 
               description="Join a supportive community of fitness enthusiasts who motivate each other to achieve their goals together."
+              delay={300}
             />
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8" aria-labelledby="cta-heading">
+      <section className="relative py-20 px-4" aria-labelledby="cta-heading">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 rounded-2xl p-8 md:p-12 shadow-2xl">
-            <h2 id="cta-heading" className="text-3xl md:text-4xl font-bold text-black mb-4">
-              Ready to Transform Your Life?
-            </h2>
-            <p className="text-black/80 text-lg mb-8 max-w-2xl mx-auto">
-              Start your fitness journey today and get access to world-class facilities and expert guidance.
-            </p>
-            <Link
-              href="/contact"
-              className="inline-block bg-black text-white font-bold py-4 px-10 rounded-full text-lg hover:bg-gray-900 transition-all duration-300 transform hover:scale-105 shadow-xl"
-            >
-              Get Started Now
-            </Link>
+          <div className="relative bg-[#12121a] rounded-3xl p-8 md:p-12 border border-[#f7ff00]/30 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#f7ff00]/10 via-transparent to-[#00f7ff]/10" />
+            <div className="relative z-10">
+              <h2 id="cta-heading" className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Ready to Transform Your Life?
+              </h2>
+              <p className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
+                Start your fitness journey today and get access to world-class facilities and expert guidance.
+              </p>
+              <Link
+                href="/contact"
+                className="inline-block bg-[#f7ff00] text-black font-bold py-4 px-12 rounded-full text-lg hover:bg-white transition-all duration-300 transform hover:scale-105 shadow-[0_0_30px_rgba(247,255,0,0.4)]"
+              >
+                Get Started Now →
+              </Link>
+            </div>
           </div>
         </div>
       </section>
