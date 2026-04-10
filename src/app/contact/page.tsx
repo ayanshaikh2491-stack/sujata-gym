@@ -1,21 +1,66 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+interface FormData {
+  name: string
+  email: string
+  phone: string
+  subject: string
+  message: string
+}
+
+const initialFormData: FormData = {
+  name: '',
+  email: '',
+  phone: '',
+  subject: '',
+  message: ''
+}
 
 export default function Contact() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: ''
-  })
-
+  const [formData, setFormData] = useState<FormData>(initialFormData)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [errors, setErrors] = useState<Partial<FormData>>({})
+
+  useEffect(() => {
+    setIsLoaded(true)
+  }, [])
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<FormData> = {}
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required'
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email'
+    }
+    
+    if (!formData.subject) {
+      newErrors.subject = 'Please select a subject'
+    }
+    
+    if (!formData.message.trim()) {
+      newErrors.message = 'Message is required'
+    } else if (formData.message.trim().length < 10) {
+      newErrors.message = 'Message must be at least 10 characters'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!validateForm()) return
+    
     setIsSubmitting(true)
 
     // Simulate form submission
@@ -27,54 +72,53 @@ export default function Contact() {
     // Reset form after 3 seconds
     setTimeout(() => {
       setSubmitted(false)
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
-      })
+      setFormData(initialFormData)
     }, 3000)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+    
+    // Clear error when user starts typing
+    if (errors[name as keyof FormData]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }))
+    }
   }
 
   return (
-    <div className="min-h-screen py-20">
+    <div className={`min-h-screen py-20 transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+        <section className="text-center mb-16" aria-labelledby="contact-heading">
+          <h1 id="contact-heading" className="text-5xl md:text-6xl font-bold text-white mb-6">
             Contact <span className="text-yellow-400">Us</span>
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
             Ready to start your fitness journey? Get in touch with our team
             for personalized guidance and membership information.
           </p>
-        </div>
+        </section>
 
-        <div className="grid lg:grid-cols-2 gap-12">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-12">
           {/* Contact Form */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">Send us a Message</h2>
+          <section className="bg-white/10 backdrop-blur-md rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 hover:shadow-xl" aria-labelledby="form-heading">
+            <h2 id="form-heading" className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+              <span>📝</span> Send us a Message
+            </h2>
 
             {submitted ? (
-              <div className="text-center py-12">
+              <div className="text-center py-12 animate-bounce">
                 <div className="text-6xl mb-4">✅</div>
                 <h3 className="text-2xl font-bold text-white mb-2">Message Sent!</h3>
                 <p className="text-gray-300">Thank you for contacting us. We'll get back to you soon!</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-                      Full Name *
+                      Full Name <span className="text-red-400">*</span>
                     </label>
                     <input
                       type="text"
@@ -82,14 +126,19 @@ export default function Contact() {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                      aria-required="true"
+                      aria-invalid={!!errors.name}
+                      aria-describedby={errors.name ? 'name-error' : undefined}
+                      className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all ${
+                        errors.name ? 'border-red-400' : 'border-white/20'
+                      }`}
                       placeholder="Your full name"
                     />
+                    {errors.name && <p id="name-error" className="text-red-400 text-sm mt-1" role="alert">{errors.name}</p>}
                   </div>
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                      Email Address *
+                      Email Address <span className="text-red-400">*</span>
                     </label>
                     <input
                       type="email"
@@ -97,10 +146,15 @@ export default function Contact() {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                      aria-required="true"
+                      aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? 'email-error' : undefined}
+                      className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all ${
+                        errors.email ? 'border-red-400' : 'border-white/20'
+                      }`}
                       placeholder="your@email.com"
                     />
+                    {errors.email && <p id="email-error" className="text-red-400 text-sm mt-1" role="alert">{errors.email}</p>}
                   </div>
                 </div>
 
@@ -115,21 +169,24 @@ export default function Contact() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all"
                       placeholder="+1 (555) 123-4567"
                     />
                   </div>
                   <div>
                     <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-2">
-                      Subject *
+                      Subject <span className="text-red-400">*</span>
                     </label>
                     <select
                       id="subject"
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                      aria-required="true"
+                      aria-invalid={!!errors.subject}
+                      className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all ${
+                        errors.subject ? 'border-red-400' : 'border-white/20'
+                      }`}
                     >
                       <option value="">Select a subject</option>
                       <option value="membership">Membership Inquiry</option>
@@ -138,44 +195,52 @@ export default function Contact() {
                       <option value="general">General Inquiry</option>
                       <option value="feedback">Feedback</option>
                     </select>
+                    {errors.subject && <p id="subject-error" className="text-red-400 text-sm mt-1" role="alert">{errors.subject}</p>}
                   </div>
                 </div>
 
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
-                    Message *
+                    Message <span className="text-red-400">*</span>
                   </label>
                   <textarea
                     id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    required
+                    aria-required="true"
+                    aria-invalid={!!errors.message}
+                    aria-describedby={errors.message ? 'message-error' : undefined}
                     rows={6}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+                    className={`w-full px-4 py-3 bg-white/10 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all resize-none ${
+                      errors.message ? 'border-red-400' : 'border-white/20'
+                    }`}
                     placeholder="Tell us about your fitness goals and how we can help..."
                   />
+                  {errors.message && <p id="message-error" className="text-red-400 text-sm mt-1" role="alert">{errors.message}</p>}
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold py-4 px-6 rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold py-4 px-6 rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] shadow-lg"
                 >
                   {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             )}
-          </div>
+          </section>
 
           {/* Contact Information */}
-          <div className="space-y-8">
+          <div className="space-y-6">
             {/* Contact Details */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8">
-              <h2 className="text-2xl font-bold text-white mb-6">Get in Touch</h2>
+            <section className="bg-white/10 backdrop-blur-md rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 hover:shadow-xl" aria-labelledby="contact-info-heading">
+              <h2 id="contact-info-heading" className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <span>📞</span> Get in Touch
+              </h2>
 
               <div className="space-y-6">
-                <div className="flex items-center">
+                <div className="flex items-center hover:bg-white/5 p-3 rounded-lg transition-colors">
                   <div className="text-2xl mr-4">📍</div>
                   <div>
                     <h3 className="text-lg font-semibold text-white">Address</h3>
@@ -183,7 +248,7 @@ export default function Contact() {
                   </div>
                 </div>
 
-                <div className="flex items-center">
+                <div className="flex items-center hover:bg-white/5 p-3 rounded-lg transition-colors">
                   <div className="text-2xl mr-4">📞</div>
                   <div>
                     <h3 className="text-lg font-semibold text-white">Phone</h3>
@@ -191,7 +256,7 @@ export default function Contact() {
                   </div>
                 </div>
 
-                <div className="flex items-center">
+                <div className="flex items-center hover:bg-white/5 p-3 rounded-lg transition-colors">
                   <div className="text-2xl mr-4">✉️</div>
                   <div>
                     <h3 className="text-lg font-semibold text-white">Email</h3>
@@ -199,7 +264,7 @@ export default function Contact() {
                   </div>
                 </div>
 
-                <div className="flex items-center">
+                <div className="flex items-center hover:bg-white/5 p-3 rounded-lg transition-colors">
                   <div className="text-2xl mr-4">🕒</div>
                   <div>
                     <h3 className="text-lg font-semibold text-white">Hours</h3>
@@ -210,38 +275,28 @@ export default function Contact() {
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
 
             {/* Quick Actions */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8">
-              <h2 className="text-2xl font-bold text-white mb-6">Quick Actions</h2>
+            <section className="bg-white/10 backdrop-blur-md rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 hover:shadow-xl" aria-labelledby="quick-actions-heading">
+              <h2 id="quick-actions-heading" className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <span>⚡</span> Quick Actions
+              </h2>
 
               <div className="space-y-4">
-                <button className="w-full bg-yellow-400 text-black font-bold py-3 px-4 rounded-lg hover:bg-yellow-500 transition-colors">
+                <button className="w-full bg-yellow-400 text-black font-bold py-3 px-4 rounded-lg hover:bg-yellow-500 transition-all duration-300 hover:scale-[1.02]">
                   📅 Schedule Free Consultation
                 </button>
 
-                <button className="w-full bg-white/10 text-white font-bold py-3 px-4 rounded-lg hover:bg-white/20 transition-colors">
+                <button className="w-full bg-white/10 text-white font-bold py-3 px-4 rounded-lg hover:bg-white/20 transition-all duration-300 hover:scale-[1.02]">
                   🎯 Take Membership Tour
                 </button>
 
-                <button className="w-full bg-white/10 text-white font-bold py-3 px-4 rounded-lg hover:bg-white/20 transition-colors">
+                <button className="w-full bg-white/10 text-white font-bold py-3 px-4 rounded-lg hover:bg-white/20 transition-all duration-300 hover:scale-[1.02]">
                   💪 Start Free Trial
                 </button>
               </div>
-            </div>
-
-            {/* Map Placeholder */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8">
-              <h2 className="text-2xl font-bold text-white mb-6">Find Us</h2>
-              <div className="aspect-video bg-gradient-to-br from-gray-600 to-gray-800 rounded-lg flex items-center justify-center">
-                <div className="text-center text-gray-400">
-                  <div className="text-4xl mb-2">🗺️</div>
-                  <p>Interactive Map</p>
-                  <p className="text-sm">Coming Soon</p>
-                </div>
-              </div>
-            </div>
+            </section>
           </div>
         </div>
       </div>
