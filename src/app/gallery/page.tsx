@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import dynamic from 'next/dynamic'
 
 // Dynamically import 3D components
 const Gym3DCanvas = dynamic(() => import('@/components/Gym3DScene'), { ssr: false })
