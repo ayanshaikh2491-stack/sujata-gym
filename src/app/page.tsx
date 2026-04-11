@@ -23,12 +23,12 @@ const containerVariants = {
     opacity: 1,
     transition: { staggerChildren: 0.1 }
   }
-}
+} as const
 
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
-}
+} as const
 
 function StatCard({ stat, index }: { stat: typeof stats[0]; index: number }) {
   const [count, setCount] = useState(0)
@@ -112,18 +112,14 @@ export default function Home() {
   }, [])
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       className="min-h-screen relative overflow-hidden"
     >
-      <div className="absolute inset-0 grid-pattern" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-20 blur-[120px]" style={{ background: 'radial-gradient(circle, #f59e0b 0%, transparent 70%)' }} />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full opacity-15 blur-[100px]" style={{ background: 'radial-gradient(circle, #6366f1 0%, transparent 70%)' }} />
-
       <section className="relative min-h-screen flex items-center justify-center px-4 py-20">
-        <motion.div 
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           animate={isLoaded ? "visible" : "hidden"}
@@ -138,7 +134,7 @@ export default function Home() {
           </motion.h1>
 
           <motion.p variants={itemVariants} className="text-xl md:text-2xl text-slate-300 mb-12 max-w-2xl mx-auto">
-            Transform your body with <span className="text-amber-500">professional trainers</span>, 
+            Transform your body with <span className="text-amber-500">professional trainers</span>,
             state-of-the-art equipment, and personalized training programs.
           </motion.p>
 
@@ -161,7 +157,7 @@ export default function Home() {
 
       <section className="relative py-24 px-4">
         <div className="max-w-6xl mx-auto">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -185,7 +181,7 @@ export default function Home() {
       </section>
 
       <section className="relative py-20 px-4 mb-12">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
